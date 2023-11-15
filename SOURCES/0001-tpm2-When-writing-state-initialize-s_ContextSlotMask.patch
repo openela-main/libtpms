@@ -1,0 +1,51 @@
+From b662e6fd7169f31ef664ecd0b0b45547462e1e31 Mon Sep 17 00:00:00 2001
+From: Stefan Berger <stefanb@linux.ibm.com>
+Date: Tue, 4 Jan 2022 14:45:31 -0500
+Subject: [PATCH] tpm2: When writing state initialize s_ContextSlotMask if not
+ set
+
+If s_ContextSlotMask was not set since the TPM 2 was not initialized
+by a call to TPM_Manufacture() or the state was not resumed, then
+initialize the s_ContextSlotMask to 0xffff.
+
+This situation can occur if a VM with an attached swtpm was started
+and the VM's firmware either doesn't support TPM or didn't get to
+initialize the vTPM.
+
+The following commands recreated the issue with a SeaBIOS-only VM that
+had no attached hard disk but an attached TPM 2:
+
+virsh start BIOS-only-VM ; virsh save BIOS-only-VM save.bin ; \
+ virsh restore save.bin
+
+Error: Failed to restore domain from save.bin
+error: internal error: qemu unexpectedly closed the monitor: \
+2022-01-04T19:26:18.835851Z qemu-system-x86_64: tpm-emulator: Setting the stateblob (type 2) failed with a TPM error 0x3 a parameter is bad
+2022-01-04T19:26:18.835899Z qemu-system-x86_64: error while loading state for instance 0x0 of device 'tpm-emulator'
+2022-01-04T19:26:18.835929Z qemu-system-x86_64: load of migration failed: Input/output error
+
+Resolves: https://bugzilla.redhat.com/show_bug.cgi?id=2035731
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+---
+ src/tpm2/NVMarshal.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/tpm2/NVMarshal.c b/src/tpm2/NVMarshal.c
+index 996c73c..c7cd1e0 100644
+--- a/src/tpm2/NVMarshal.c
++++ b/src/tpm2/NVMarshal.c
+@@ -1422,6 +1422,11 @@ STATE_RESET_DATA_Marshal(STATE_RESET_DATA *data, BYTE **buffer, INT32 *size)
+     written += UINT16_Marshal(&array_size, buffer, size);
+     for (i = 0; i < array_size; i++)
+         written += UINT16_Marshal(&data->contextArray[i], buffer, size);
++
++    if (s_ContextSlotMask != 0x00ff && s_ContextSlotMask != 0xffff) {
++        /* TPM wasn't initialized, so s_ContextSlotMask wasn't set */
++        s_ContextSlotMask = 0xffff;
++    }
+     written += UINT16_Marshal(&s_ContextSlotMask, buffer, size);
+ 
+     written += UINT64_Marshal(&data->contextCounter, buffer, size);
+-- 
+2.36.1
+
