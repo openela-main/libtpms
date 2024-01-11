@@ -1,0 +1,37 @@
+From e4261984374556da65c9d46097d5a1200b335c0c Mon Sep 17 00:00:00 2001
+From: Juergen Repp <juergen.repp@sit.fraunhofer.de>
+Date: Sat, 19 Feb 2022 12:59:32 +0100
+Subject: [PATCH] tpm2: Do not call EVP_PKEY_CTX_set0_rsa_oaep_label() for
+ label of size 0 (OSSL 3)
+
+Openssl 3.0 did return an error if EVP_PKEY_CTX_set0_rsa_oaep_label was called
+with label size 0. The function should only be called if the size of the label
+is greater 0.
+With this fix TPM2_RSA_Encrypt/Decrypt did work with OpenSSL 1.1 and 3.0
+for encryption without label.
+
+Signed-off-by: Juergen Repp <juergen.repp@sit.fraunhofer.de>
+---
+ src/tpm2/crypto/openssl/CryptRsa.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/tpm2/crypto/openssl/CryptRsa.c b/src/tpm2/crypto/openssl/CryptRsa.c
+index 4ed04384feb0..b5d6b6c3be82 100644
+--- a/src/tpm2/crypto/openssl/CryptRsa.c
++++ b/src/tpm2/crypto/openssl/CryptRsa.c
+@@ -1356,10 +1356,9 @@ CryptRsaEncrypt(
+                 if (tmp == NULL)
+                     ERROR_RETURN(TPM_RC_FAILURE);
+                 memcpy(tmp, label->buffer, label->size);
++                if (EVP_PKEY_CTX_set0_rsa_oaep_label(ctx, tmp, label->size) <= 0)
++                    ERROR_RETURN(TPM_RC_FAILURE);
+             }
+-            // label->size == 0 is supported
+-            if (EVP_PKEY_CTX_set0_rsa_oaep_label(ctx, tmp, label->size) <= 0)
+-                ERROR_RETURN(TPM_RC_FAILURE);
+             tmp = NULL;
+             break;
+           default:
+-- 
+2.36.0.44.g0f828332d5ac
+
