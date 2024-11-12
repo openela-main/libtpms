@@ -3,7 +3,7 @@
 
 Name:           libtpms
 Version:        0.9.1
-Release:        3.%{gitdate}git%{gitversion}%{?dist}
+Release:        4.%{gitdate}git%{gitversion}%{?dist}
 
 Summary: Library providing Trusted Platform Module (TPM) functionality
 License:        BSD
@@ -13,6 +13,7 @@ Patch0001:      0001-tpm2-Do-not-call-EVP_PKEY_CTX_set0_rsa_oaep_label-fo.patch
 Patch0002:      0001-tpm2-Fix-size-check-in-CryptSecretDecrypt.patch
 Patch0003:      0001-tpm2-When-writing-state-initialize-s_ContextSlotMask.patch
 Patch0004:      0001-tpm2-Check-size-of-buffer-before-accessing-it-CVE-20.patch
+Patch0005:      0001-tpm2-Return-TPM_RC_VALUE-upon-decryption-failure.patch
 
 BuildRequires:  openssl-devel
 BuildRequires:  pkgconfig gawk sed
@@ -59,6 +60,10 @@ find %{buildroot} -type f -name '*.la' | xargs rm -f -- || :
 %{_mandir}/man3/*
 
 %changelog
+* Wed Sep 04 2024 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-4.20211126git1ff6fe1f43
+- Backport "tpm2: Return TPM_RC_VALUE upon decryption failure"
+  Resolves: RHEL-58054
+
 * Wed Mar 01 2023 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-3.20211126git1ff6fe1f43
 - Backport "tpm2: Check size of buffer before accessing it" (CVE-2023-1017 & CVE-2023-1018)
   Resolves: rhbz#2173960
