@@ -62,7 +62,7 @@ find %{buildroot} -type f -name '*.la' | xargs rm -f -- || :
 %changelog
 * Wed Sep 04 2024 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-4.20211126git1ff6fe1f43
 - Backport "tpm2: Return TPM_RC_VALUE upon decryption failure"
-  Resolves: RHEL-58054
+  Resolves: RHEL-58056
 
 * Wed Mar 01 2023 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-3.20211126git1ff6fe1f43
 - Backport "tpm2: Check size of buffer before accessing it" (CVE-2023-1017 & CVE-2023-1018)
