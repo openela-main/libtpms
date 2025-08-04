@@ -3,7 +3,7 @@
 
 Name:           libtpms
 Version:        0.9.1
-Release:        2.%{gitdate}git%{gitversion}%{?dist}
+Release:        3.%{gitdate}git%{gitversion}%{?dist}
 
 Summary: Library providing Trusted Platform Module (TPM) functionality
 License:        BSD
@@ -12,6 +12,7 @@ Source0:        libtpms-%{gitdate}.tar.xz
 ExcludeArch:    i686
 Patch0003:      0001-tpm2-When-writing-state-initialize-s_ContextSlotMask.patch
 Patch0004:      0001-tpm2-Check-size-of-buffer-before-accessing-it-CVE-20.patch
+Patch0006:      0001-tpm2-CVE-2025-49133-fix.patch
 
 BuildRequires:  openssl-devel
 BuildRequires:  pkgconfig gawk sed
@@ -59,6 +60,10 @@ find %{buildroot} -type f -name '*.la' | xargs rm -f -- || :
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 17 2025 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-3.20211126git1ff6fe1f43
+- Fix CVE-2025-49133
+  Resolves: RHEL-96251
+
 * Tue Mar 21 2023 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-2.20211126git1ff6fe1f43
 - Backport "tpm2: Check size of buffer before accessing it" (CVE-2023-1017 & CVE-2023-1018)
   Resolves: rhbz#2173964
