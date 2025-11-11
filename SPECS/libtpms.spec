@@ -3,7 +3,7 @@
 
 Name:           libtpms
 Version:        0.9.1
-Release:        5.%{gitdate}git%{gitversion}%{?dist}
+Release:        6.%{gitdate}git%{gitversion}%{?dist}
 
 Summary: Library providing Trusted Platform Module (TPM) functionality
 License:        BSD
@@ -61,6 +61,10 @@ find %{buildroot} -type f -name '*.la' | xargs rm -f -- || :
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 17 2025 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-6.20211126git1ff6fe1f43
+- Fix CVE-2025-49133 (build for 9.7)
+  Resolves: RHEL-96254
+
 * Mon Jun 16 2025 Marc-André Lureau <marcandre.lureau@redhat.com> - 0.9.1-5.20211126git1ff6fe1f43
 - Fix CVE-2025-49133
   Resolves: RHEL-96258
